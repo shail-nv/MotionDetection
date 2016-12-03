@@ -25,6 +25,7 @@ else:
 
 # initialize the first frame in the video stream
 firstFrame = None
+frameCount = 0
 
 # loop over the frames of the video
 #while(camera.isOpened()):
@@ -32,17 +33,15 @@ while True:
     # grab the current frame and initialize the occupied/unoccupied
     # text
     (grabbed, frame) = camera.read()
-    text = "Unoccupied"
+    text = "No Motion Detected"
 
     # if the frame could not be grabbed, then we have reached the end
     # of the video
     if not grabbed:
         break
-    #cv2.imshow('Security Feed', frame)
 
-    #if cv2.waitKey(1) & 0xFF == ord('q'):
-    #    break
-
+    # Increase the frame count for grabbed frame
+    frameCount = frameCount + 1
 
     # resize the frame, convert it to grayscale, and blur it
     frame = imutils.resize(frame, width=500)
@@ -50,7 +49,7 @@ while True:
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
     # if the first frame is None, initialize it
-    if firstFrame is None:
+    if firstFrame is None or frameCount%15 is 0:
         firstFrame = gray
         continue
 
@@ -78,7 +77,7 @@ while True:
         # and update the text
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        text = "Occupied"
+        text = "Motion Detected"
 
     # draw the text and timestamp on the frame
     cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
